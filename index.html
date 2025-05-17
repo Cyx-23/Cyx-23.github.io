@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hi Marga 🩷</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #ffe4e1, #fff0f6);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+      color: #9b2c5a;
+      user-select: none;
+    }
+
+    .container {
+      background: rgba(255 182 193 / 0.25);
+      border-radius: 20px;
+      padding: 30px 40px;
+      max-width: 400px;
+      width: 90vw;
+      box-shadow: 0 8px 25px rgb(219 112 147 / 0.25);
+      text-align: center;
+      backdrop-filter: blur(10px);
+      border: 2px solid #ffb6c1;
+    }
+
+    h1 {
+      font-size: 2.8rem;
+      margin-bottom: 40px;
+      color: #d63384;
+      text-shadow: 0 0 5px #ff9ccf, 0 0 10px #ff6fa6, 0 0 15px #d63384;
+    }
+
+    .btn {
+      background: linear-gradient(135deg, #ff7eb9, #ff4a91);
+      border: none;
+      padding: 16px 36px;
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: white;
+      border-radius: 40px;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgb(255 105 180 / 0.6);
+      transition: all 0.3s ease;
+      letter-spacing: 0.05em;
+    }
+    .btn:hover {
+      background: linear-gradient(135deg, #ff4a91, #ff7eb9);
+      transform: scale(1.07);
+    }
+
+    .hearts {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: -1;
+    }
+    .heart {
+      position: absolute;
+      font-size: 1.7rem;
+      color: #ff5c8d;
+      animation: float linear infinite;
+      opacity: 0.8;
+    }
+    @keyframes float {
+      0% { transform: translateY(0) scale(1); opacity: 0.8; }
+      100% { transform: translateY(-850px) scale(1.6); opacity: 0; }
+    }
+
+    .modal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(255 182 193 / 0.3);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      backdrop-filter: blur(12px);
+    }
+    .hidden { display: none; }
+
+    .modal-content {
+      background: #fff0f5;
+      padding: 40px 30px;
+      border-radius: 25px;
+      box-shadow: 0 15px 40px rgba(255, 105, 180, 0.3);
+      max-width: 90vw;
+      width: 400px;
+      text-align: center;
+      border: 2px solid #ffb6c1;
+    }
+
+    .modal-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .modal-buttons button {
+      min-width: 110px;
+      padding: 14px 0;
+      font-size: 1.1rem;
+      font-weight: 600;
+      border-radius: 40px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .yes-btn {
+      background: linear-gradient(135deg, #ff69b4, #ff1493);
+      color: white;
+    }
+    .yes-btn:hover {
+      transform: scale(1.1);
+    }
+
+    .no-btn {
+      background: #ffc0cb;
+      color: #9b2c5a;
+    }
+    .no-btn:hover {
+      transform: scale(1.1);
+    }
+
+    input[type="text"], input[type="time"], input[type="date"] {
+      width: 85%;
+      padding: 14px 0;
+      font-size: 1.1rem;
+      border-radius: 30px;
+      border: 2.5px solid #ff69b4;
+      background: #fff0f5;
+      color: #d63384;
+      text-align: center;
+      margin-bottom: 30px;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container" id="welcome-screen">
+    <h1>Hi Marga! 💖</h1>
+    <button class="btn" onclick="showInitialQuestion()">Proceed to Question?</button>
+  </div>
+
+  <div class="hearts" id="hearts-container"></div>
+
+  <!-- ✅ Use relative path for GitHub -->
+  <audio id="bg-music" src="audio/pasilyo.mp3" preload="auto" loop></audio>
+
+  <div class="modal hidden" id="question-modal">
+    <div class="modal-content" id="modal-content"></div>
+  </div>
+
+  <script>
+    const music = document.getElementById("bg-music");
+    music.volume = 0.5;
+
+    const questions = [
+      { text: "San na coffee shop? ☕", inputType: "text", key: "coffeeShop" },
+      { text: "Anong time? ⏰", inputType: "time", key: "time" },
+      { text: "You choose the date 💖", inputType: "date", key: "date" }
+    ];
+
+    let currentQuestion = 0;
+    const answers = {};
+
+    function showInitialQuestion() {
+      music.play().catch(e => console.log("Autoplay prevented:", e));
+      const modal = document.getElementById("question-modal");
+      const content = document.getElementById("modal-content");
+      modal.classList.remove("hidden");
+
+      content.innerHTML = `
+        <h2>Would you like to go for coffee tambay with me? ☕💕</h2>
+        <div class="modal-buttons">
+          <button class="yes-btn" onclick="startQuestions()">Yes</button>
+          <button class="no-btn" onclick="decline()">No</button>
+        </div>
+      `;
+    }
+
+    function startQuestions() {
+      document.getElementById("question-modal").classList.add("hidden");
+      currentQuestion = 0;
+      clearAnswers();
+      showQuestion();
+    }
+
+    function showQuestion() {
+      const q = questions[currentQuestion];
+      const modal = document.getElementById("question-modal");
+      const content = document.getElementById("modal-content");
+      modal.classList.remove("hidden");
+      content.innerHTML = `
+        <h2>${q.text}</h2>
+        <input type="${q.inputType}" id="answer-input" />
+        <div class="modal-buttons">
+          <button class="yes-btn" onclick="submitAnswer()">Submit</button>
+          <button class="no-btn" onclick="decline()">Cancel</button>
+        </div>
+      `;
+      document.getElementById("answer-input").focus();
+    }
+
+    function submitAnswer() {
+      const val = document.getElementById("answer-input").value;
+      if (!val) return alert("Please enter your answer ❤️");
+
+      answers[questions[currentQuestion].key] = val;
+      currentQuestion++;
+
+      if (currentQuestion < questions.length) {
+        showQuestion();
+      } else {
+        finish();
+      }
+    }
+
+    function finish() {
+      document.getElementById("question-modal").classList.add("hidden");
+      const screen = document.getElementById("welcome-screen");
+      screen.innerHTML = `
+        <h1>Thank you, Marga! 💘</h1>
+        <p><strong>Here's our plan:</strong></p>
+        <p><strong>Coffee Shop:</strong> ${answers.coffeeShop}</p>
+        <p><strong>Time:</strong> ${answers.time}</p>
+        <p><strong>Date:</strong> ${answers.date}</p>
+        <p>Can't wait to see you! 🥰</p>
+      `;
+      showHearts();
+    }
+
+    function decline() {
+      alert("Sige lang, next time na lang 😢");
+      document.getElementById("question-modal").classList.add("hidden");
+      pauseMusic();
+    }
+
+    function clearAnswers() {
+      for (let key in answers) delete answers[key];
+    }
+
+    function pauseMusic() {
+      music.pause();
+      music.currentTime = 0;
+    }
+
+    function showHearts() {
+      const container = document.getElementById("hearts-container");
+      container.innerHTML = '';
+      for (let i = 0; i < 50; i++) {
+        const heart = document.createElement('div');
+        heart.className = 'heart';
+        heart.textContent = '❤️';
+        heart.style.left = Math.random() * 100 + 'vw';
+        heart.style.top = Math.random() * 100 + 'vh';
+        heart.style.animationDuration = (Math.random() * 3 + 2) + 's';
+        container.appendChild(heart);
+      }
+    }
+  </script>
+
+</body>
+</html>
